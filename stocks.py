@@ -8,4 +8,5 @@ class Stocks():
     stocks = pd.DataFrame()
     def __init__(self, FileName, path="D:/cStrategy/Factor/"):
         self.stocks = pd.read_csv(path+FileName+".csv")
-    def get
+    def getStocks(self):
+        return self.stocks
