@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 # this is the factor object
 # has a name and DataFrame
-class factor():
+class Factor():
     factor = pd.DataFrame()
     factorName = None
     def __init__(self, factorFileName, path="D:/cStrategy/Factor/",):
@@ -22,6 +22,7 @@ class factor():
     # getter of the Date time of the factor
     def getDateTime(self):
         return self.factor[self.factorName+"-d"]
+    # get stock
     # more attr may be added in the feature e.g the postion of NaN
 
 

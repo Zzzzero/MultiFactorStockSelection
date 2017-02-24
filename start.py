@@ -4,4 +4,4 @@
 import numpy as np
 import pandas as pd
 # import project file
-import factors as fc
+import Factor as fc
