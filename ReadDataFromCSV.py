@@ -10,15 +10,18 @@ class ReadDataFromCSV():
     Data = pd.DataFrame()  #DataFrame with str labels
     Name = None
     # class constructor file stored at  "D:/cStrategy/Factor/" by default
-    def __init__(self, factorFileName, path="D:/cStrategy/Factor/",):
+    def __init__(self, factorFileName, path="D:/cStrategy/Factor/"):
         # the file path including file name
         self.Name = factorFileName
         path = path+factorFileName+".csv"
         # read the Data Frame
         Data = pd.read_csv(filepath_or_buffer=path)
+        # getting stock codes which are delisted
+        delistStocks = self.getDelisted()
         # indexing the data
         index = Data[self.Name+"-d"]
         # labeling the dataFrame
+        self.Data = Data.drop(delistStocks, axis=1)  # drop the delisted stocks
         self.Data = Data.drop(self.Name+'-d', axis=1).set_index(index.astype(str))
     # getter of the DataFrame of the factor at all avaliable stocks
     def getDataFrame(self):
@@ -42,3 +45,13 @@ class ReadDataFromCSV():
     # possible to return NaN if the Dates or stock code are not valid
     def getDataForStockAtDate(self,stockCodes,Dates):
         return self.Data.loc[Dates][stockCodes]
+    # get delisted stocks
+    def getDelisted(self):
+        # filting the delist stocks
+        delist = pd.read_csv(filepath_or_buffer="D:/cStrategy/Factor/LZ_GPA_VAL_A_TCAP.csv")
+        delistFrame = pd.DataFrame(np.isnan(delist.tail(1))).drop("LZ_GPA_VAL_A_TCAP-d", axis=1)
+        delistStocks = []
+        for codes in delistFrame.columns:
+            if delistFrame[codes].values[0]:
+                delistStocks.append(codes)
+        return delistStocks
