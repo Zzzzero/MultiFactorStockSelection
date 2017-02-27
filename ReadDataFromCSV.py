@@ -6,6 +6,7 @@ import pandas as pd
 
 # this is the parent object of all csv penaled data
 # has a name and DataFrame
+# exclude DELISTED STOCKS ONLY
 class ReadDataFromCSV():
     Data = pd.DataFrame()  #DataFrame with str labels
     Name = None
@@ -21,7 +22,7 @@ class ReadDataFromCSV():
         # indexing the data
         index = Data[self.Name+"-d"]
         # labeling the dataFrame
-        self.Data = Data.drop(delistStocks, axis=1)  # drop the delisted stocks
+        self.Data = Data.drop(delistStocks, axis=1, inplace=True)  # drop the delisted stocks
         self.Data = Data.drop(self.Name+'-d', axis=1).set_index(index.astype(str))
     # getter of the DataFrame of the factor at all avaliable stocks
     def getDataFrame(self):
@@ -55,3 +56,12 @@ class ReadDataFromCSV():
             if delistFrame[codes].values[0]:
                 delistStocks.append(codes)
         return delistStocks
+
+# this is the child object of stock price data
+class readStockFromCSV (ReadDataFromCSV):
+
+    #  calculating stock return over given period of days
+    def CalcReturn(self, period=1):
+        # creating a empty pd DataFrame
+        df = self.Data.ix[0::period]  # retrieve every period of rows
+        return df / df.shift(1) - 1  # calc and return

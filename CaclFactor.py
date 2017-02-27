@@ -1,10 +1,13 @@
+import numpy as np
 import pandas as pd
 import ReadDataFromCSV as rd
 
 # read the stock close price at D line
 stockData = rd.ReadDataFromCSV("LZ_GPA_QUOTE_TCLOSE")
-
+# the industry indicator
+stockIndust = rd.ReadDataFromCSV("LZ_GPA_INDU_ZX")
 # takes pd.DataFream and return period as input
+
 # out put the return over the input period
 def CalcReturn(stockData,period = 1):
     # creating a empty pd DataFrame
@@ -14,7 +17,6 @@ def CalcReturn(stockData,period = 1):
 # takes the returns over certain period as a input
 def CaclMeanReturn(stockReturns):
     return stockReturns.mean()
-
 # sorting the mean returns
 def sortMeanReturns(meanReturns):
     meanReturns.sort()
