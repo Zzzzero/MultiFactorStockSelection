@@ -4,4 +4,4 @@
 import numpy as np
 import pandas as pd
 # import project file
-import Factor as fc
+import ReadFactorFromCSV as fc

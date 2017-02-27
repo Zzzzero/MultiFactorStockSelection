@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 # this is the factor object
 # has a name and DataFrame
-class Factor():
+class ReadFactorFromCSV():
     factor = pd.DataFrame()  #DataFrame with str labels
     factorName = None
     # class constructor file stored at  "D:/cStrategy/Factor/" by default
