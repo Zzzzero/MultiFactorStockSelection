@@ -65,6 +65,10 @@ class ReadDataFromCSV():
     # selecting data valid for last n period
     def selectLatest(self,period):
         self.Data = self.Data.tail(period)
+    # drop label if the column contains NAN
+    def dropNan(self):
+        self.Data = self.Data.dropna(axis=1, how="any")
+
 # this is the child object of stock price data
 class readStockFromCSV (ReadDataFromCSV):
     #  calculating stock return over given period of days
