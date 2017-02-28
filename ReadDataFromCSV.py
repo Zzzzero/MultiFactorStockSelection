@@ -58,13 +58,15 @@ class ReadDataFromCSV():
         return delistStocks
     # on handing missing data, using interpolate where missing point in between two point
     def handlingMissData(self,method="linear",limit = 28):
-        self.Data.interpolate(method=method, limit=limit, inplace=True)
+        self.Data.interpolate(method=method, limit=limit, axis=0, inplace=True)
     # selecting data after given date
     def setStartTime(self,date):
         self.Data = self.Data.loc[str(date):]
+    # selecting data valid for last n period
+    def selectLatest(self,period):
+        self.Data = self.Data.tail(period)
 # this is the child object of stock price data
 class readStockFromCSV (ReadDataFromCSV):
-
     #  calculating stock return over given period of days
     def CalcReturn(self, period=1):
         # creating a empty pd DataFrame
