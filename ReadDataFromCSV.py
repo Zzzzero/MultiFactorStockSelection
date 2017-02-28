@@ -56,7 +56,12 @@ class ReadDataFromCSV():
             if delistFrame[codes].values[0]:
                 delistStocks.append(codes)
         return delistStocks
-
+    # on handing missing data, using interpolate where missing point in between two point
+    def handlingMissData(self,method="linear",limit = 28):
+        self.Data.interpolate(method=method, limit=limit, inplace=True)
+    # selecting data after given date
+    def setStartTime(self,date):
+        self.Data = self.Data.loc[str(date):]
 # this is the child object of stock price data
 class readStockFromCSV (ReadDataFromCSV):
 
