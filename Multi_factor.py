@@ -23,10 +23,7 @@ stock_index.setValueAtMonthEnd()
 # cacl stock returns on monthy ends
 rts, _ = stocks.CalcReturn(stocks.Data)
 indexrts, _ = stock_index.CalcReturn(stock_index.Data)
-
 rtPremium = rd.rtOverIndex(rts, indexrts)  # excess return of stocks over given index
-
-
 # starardlized value of factors
 normValue = PE.standarlizedFactors(PE.Data)  # standardized Factor values
 
