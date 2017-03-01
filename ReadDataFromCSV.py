@@ -133,15 +133,14 @@ class indexFromCSV(ReadDataFromCSV):
                  factorFileName="LZ_GPA_INDXQUOTE_CLOSE",
                  path="D:/cStrategy/Factor/"):
         super(indexFromCSV, self).__init__(factorFileName, path)
-        self.Data = pd.DataFrame(self.Data[indexName])
+        self.Data = self.Data[indexName]
     def CalcReturn (self, df):
         df = df / df.shift(1) - 1  # calc and return
         pre_date = df.index.delete(-1)  # return the period start date
         return df.drop(df.index[0]), pre_date
 
-# calc methods
-def premiumOverIndex(df,df2):
-    pdf = pd.DataFrame(index=df.index)
-    for columns in df.columns:
-        print()
-
+# calc return premium
+def rtOverIndex(df,series):
+    rp = pd.DataFrame(index=df.index)
+    rp = df.sub(series, axis=0)
+    return rp

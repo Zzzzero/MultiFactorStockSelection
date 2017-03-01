@@ -24,7 +24,7 @@ stock_index.setValueAtMonthEnd()
 rts, _ = stocks.CalcReturn(stocks.Data)
 indexrts, _ = stock_index.CalcReturn(stock_index.Data)
 
-rtPremium = pd.DataFrame().set_index(rts.index)
+rtPremium = rd.rtOverIndex(rts, indexrts)  # excess return of stocks over given index
 
 
 # starardlized value of factors
