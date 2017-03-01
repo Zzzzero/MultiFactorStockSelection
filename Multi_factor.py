@@ -9,9 +9,25 @@ import ReadDataFromCSV as rd
 stocks = rd.readStockFromCSV("LZ_GPA_QUOTE_TCLOSE")
 # load factor
 PE = rd.readFactorFromCSV("LZ_GPA_VAL_PE")
+# load stock index
+stock_index = rd.indexFromCSV()
 
-rts = stocks.CalcReturn(21)
-rtDate = stocks.getRtPeriodStart(21)
-factorAtRtDate = PE.prepareFactorAtDate(rtDate)
-normValue = PE.standarlizedFactors(factorAtRtDate)
+# data prepare
+PE.dropNan()  # filter out poor data Factors
+PeLabel = PE.getlabels()  # get current continent labels
+stocks.usePartially(PeLabel)  # use stock which contains in PE
+stocks.setValueAtMonthEnd()
+PE.setValueAtMonthEnd()
+stock_index.setValueAtMonthEnd()
+
+# cacl stock returns on monthy ends
+rts, _ = stocks.CalcReturn(stocks.Data)
+indexrts, _ = stock_index.CalcReturn(stock_index.Data)
+
+rtPremium = pd.DataFrame().set_index(rts.index)
+
+
+# starardlized value of factors
+normValue = PE.standarlizedFactors(PE.Data)  # standardized Factor values
+
 
