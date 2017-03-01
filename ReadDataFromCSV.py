@@ -7,7 +7,7 @@ import pandas as pd
 # this is the parent object of all csv penaled data
 # has a name and DataFrame
 # exclude DELISTED STOCKS ONLY
-class ReadDataFromCSV():
+class ReadDataFromCSV (object):
     Data = pd.DataFrame()  #DataFrame with str labels
     Name = None
     # class constructor file stored at  "D:/cStrategy/Factor/" by default
@@ -71,8 +71,50 @@ class ReadDataFromCSV():
 
 # this is the child object of stock price data
 class readStockFromCSV (ReadDataFromCSV):
+    #  stocks has a sector index
+    sector = pd.DataFrame()
+    def __init__(self, factorFileName,
+                 path="D:/cStrategy/Factor/",
+                 sectorFileName="LZ_GPA_INDU_ZX",
+                 indexPath="D:/cStrategy/Factor/"):
+        super(readStockFromCSV, self).__init__(factorFileName, path)
+        # default path are set to be ZHONGXIN sector
+        path2 = indexPath+sectorFileName+".csv"
+        self.sector = pd.read_csv(filepath_or_buffer=path2).tail(1)
+        self.sector.drop(sectorFileName+"-t", axis=1, inplace=True)
+        self.sector.drop(self.getDelisted(),axis=1,inplace=True)
+
     #  calculating stock return over given period of days
-    def CalcReturn(self, period=1):
+    def CalcReturn (self, period=1):
         # creating a empty pd DataFrame
         df = self.Data.ix[0::period]  # retrieve every period of rows
-        return df / df.shift(1) - 1  # calc and return
+        df = df / df.shift(1) - 1  # calc and return
+        return df.drop(df.index[0])# drop the fist line as it is Nan
+    #  return the the start date of the period return
+    #  can use to match the return start date in CalcReturn()
+    def getRtPeriodStart (self,period=1):
+        dates = self.Data.ix[0::period].index
+        return dates.delete(-1)  # drop the last line as  it has not yet have a return
+
+class readFactorFromCSV (ReadDataFromCSV):
+    # returns the factor value at provided date
+    def prepareFactorAtDate(self, dates):  # dates is in array
+        return self.Data.loc[dates]
+    # returns standarlized value of each columns in given dataFrame df
+    def standarlizedFactors(self,df):
+        mean = df.mean()
+        std = df.std()
+        return (df-mean)/std
+    #  de-extreme value of data in columns
+    def deExtremum (self,df):
+        ################
+        # unimplemented#
+        ################
+        return df
+
+class indexFromCSV():
+    data = pd.DataFrame()
+    def __init__(self, fielName, path="D:/cStrategy/Factor/"):
+        path = path+fileName+".csv"
+        self.data
+
