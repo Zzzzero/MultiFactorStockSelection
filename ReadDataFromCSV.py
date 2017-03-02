@@ -23,7 +23,6 @@ class ReadDataFromCSV (object):
         index = pd.to_datetime(index)
         # labeling the dataFrame
         self.Data = Data.drop(self.Name+'-d', axis=1).set_index(index)
-
     # getter of the DataFrame of the factor at all avaliable stocks
     def getDataFrame(self):
         return self.Data
@@ -52,6 +51,9 @@ class ReadDataFromCSV (object):
     # selecting data after given date
     def setStartTime(self,date):
         self.Data = self.Data.loc[pd.to_datetime(date):]
+    # set a test end time
+    def setEndTime(self,date):
+        self.Data = self.Data.loc[:pd.to_datetime(date)]
     # selecting data valid for last n period
     def selectLatest(self,period):
         self.Data = self.Data.tail(period)
@@ -87,7 +89,8 @@ class read_Stock_Factor(ReadDataFromCSV):
     # get delisted stocks
     def getDelisted(self):
         delist = pd.read_csv(filepath_or_buffer="D:/cStrategy/Factor/LZ_GPA_VAL_A_TCAP.csv")
-        delistFrame = pd.DataFrame(np.isnan(delist.tail(1))).drop("LZ_GPA_VAL_A_TCAP-d", axis=1)
+        delist = delist.tail(2)
+        delistFrame = pd.DataFrame(np.isnan(delist.head(1))).drop("LZ_GPA_VAL_A_TCAP-d", axis=1)
         delistStocks = []
         for codes in delistFrame.columns:
             if delistFrame[codes].values[0]:
@@ -139,8 +142,11 @@ class indexFromCSV(ReadDataFromCSV):
         pre_date = df.index.delete(-1)  # return the period start date
         return df.drop(df.index[0]), pre_date
 
-# calc return premium
-def rtOverIndex(df,series):
+# calc return premium, df and series must be the dataframe and series
+# of return over the same period on stocks and index
+# input stock return df, index return series
+# out put retrun premium
+def rtOverIndex(df, series):
     rp = pd.DataFrame(index=df.index)
     rp = df.sub(series, axis=0)
     return rp
