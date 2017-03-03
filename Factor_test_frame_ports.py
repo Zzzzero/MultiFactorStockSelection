@@ -9,7 +9,12 @@ import ReadDataFromCSV as rd
 class Ports_test():
     numOfPorts = None
     # initilization
-    def __init__(self, numberOfPorts ,fdf, rtdf, tradeCapdf):
+    def __init__(self, numberOfPorts ,FactorObj, stocksObj, tradeCapObj):
+        fdf = FactorObj.Data
+        rtdf, _= stocksObj.calcReturn(stocksObj.Data)
+        print(rtdf.index)
+        tradeCapdf = tradeCapObj.Data
+
         self.numOfPorts = int(numberOfPorts)
         # naming the portfolios
         portNames = self.namePorts(numberOfPorts)
@@ -70,3 +75,17 @@ class Ports_test():
     # show the plot of
     def showPlot(self):
         self.cumRtDataFrame.plot()
+
+#####################################################
+        # unimplemented method to check the
+        # validity of the factor
+        # 1. Factor value should corrlated with
+        #    ranks of ports corr(Fi,i)
+        # 2. Factor corr with port retrun
+        # if ARport1>ARportn --> corr>0
+        # if ARport1<ARportn --> corr<0
+        # 3. the relation should be robust in any
+        #    market condition
+        #    count(cumrt(port 1)>indexrt)/#allcase
+        #    count(cumrt(port n)<indexrt)/#allcase
+####################################################

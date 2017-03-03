@@ -5,7 +5,6 @@ import pandas as pd
 # import project file
 import ReadDataFromCSV as rd
 import Factor_test_frame_ports as ftp
-
 # load stocks
 stocks = rd.ReadStockFromCSV("LZ_GPA_QUOTE_TCLOSE")
 # load factor
@@ -17,7 +16,7 @@ tradecap = rd.Read_Stock_Factor("LZ_GPA_VAL_A_TCAP")
 # data prepare
 # cacl stock returns on monthy ends #
 # use to set test start time        #
-start = "20090101"                  #
+start = "20140301"                  #
 end = "20170301"                    #
 stocks.setStartTime(start)          #
 stocks.setEndTime(end)              #
@@ -43,4 +42,4 @@ stock_index.setValueAtMonthEnd()
 rts, _ = stocks.calcReturn(stocks.Data)
 indexrts, _ = stock_index.calcReturn(stock_index.Data)
 
-test = ftp.Ports_test(5, pe.Data, rts, tradecap.Data)
+test = ftp.Ports_test(5, pe, stocks, tradecap)

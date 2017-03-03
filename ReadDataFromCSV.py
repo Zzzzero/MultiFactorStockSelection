@@ -25,26 +25,29 @@ class ReadDataFromCSV (object):
         self.Data = Data.drop(self.Name+'-d', axis=1).set_index(index)
     # getter of the DataFrame of the factor at all avaliable stocks
     def getDataFrame(self):
-        return self.Data
+        return self.Data.copy()
     # getter of the Factor name
     def getDataName(self):
-        return self.Name
+        return self.Name.copy()
     # getter of the Date time of the factor
     def getDateTime(self):
-        return self.Data.index
+        return self.Data.index.copy()
     # getter of certain stock factor data
     # stockCodes could be a array of stockCodes like ["600601.SH","600651.SH"]
     # returns the pd.DataFrame of selected stock factor
     def getDataForStock(self,stockCodes):
         columnBlock = self.Data[stockCodes]
-        return columnBlock
+        return columnBlock.copy()
     # select by label: loc, input Dates must be a str array
     def getDataAtDate(self,Dates):
-        return self.Data.loc[pd.to_datetime(Dates)]
+        return self.Data.loc[pd.to_datetime(Dates)].copy()
     # value at stock code and date
     # possible to return NaN if the Dates or stock code are not valid
     def getDataForStockAtDate(self,stockCodes,Dates):
-        return self.Data.loc[pd.to_datetime(Dates)][stockCodes]
+        return self.Data.loc[pd.to_datetime(Dates)][stockCodes].copy()
+    # get the data at the end of each month
+    def getValueAtMonthEnd(self):
+        return self.Data.groupby(pd.TimeGrouper("M")).nth(0).copy()
     # on handing missing data, using interpolate where missing point in between two point
     def handlingMissData(self,method="linear",limit = 28):
         self.Data.interpolate(method=method, limit=limit, axis=0, inplace=True)
@@ -65,10 +68,7 @@ class ReadDataFromCSV (object):
         self.Data = self.Data[codes]
     # return the label of data
     def getlabels (self):
-        return self.Data.columns
-    # get the data at the end of each month
-    def getValueAtMonthEnd(self):
-        return self.Data.groupby(pd.TimeGrouper("M")).nth(0)
+        return self.Data.columns.copy()
     # set the data be at the end of each month
     def setValueAtMonthEnd(self):
         self.Data = self.Data.groupby(pd.TimeGrouper("M")).nth(0)
@@ -112,6 +112,7 @@ class ReadStockFromCSV (Read_Stock_Factor):
     #  calculating stock return over given period of days
     #  and returns the period begain
     def calcReturn (self, df):
+        df = df.copy()
         df = df / df.shift(1) - 1  # calc and return
         pre_date = df.index.delete(-1)
         return df.drop(df.index[0]), pre_date # drop the fist line as it is Nan
@@ -138,6 +139,7 @@ class IndexFromCSV(ReadDataFromCSV):
         super(IndexFromCSV, self).__init__(factorFileName, path)
         self.Data = self.Data[indexName]
     def calcReturn (self, df):
+        df = df.copy()
         df = df / df.shift(1) - 1  # calc and return
         pre_date = df.index.delete(-1)  # return the period start date
         return df.drop(df.index[0]), pre_date
