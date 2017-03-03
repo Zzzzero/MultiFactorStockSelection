@@ -2,10 +2,11 @@
 # import basic packages
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 # import project file
 import ReadDataFromCSV as rd
 
-class ports_test():
+class Ports_test():
     numOfPorts = None
     # initilization
     def __init__(self, numberOfPorts ,fdf, rtdf, tradeCapdf):
@@ -34,11 +35,13 @@ class ports_test():
         self.cumRtDataFrame = (self.rtDataframe+1).cumprod(0)
     def calcRtForPort (self, weightAtDate, rtAtDate):
         return (weightAtDate*rtAtDate).sum()
+    # calculate the weight of stocks using trade capital as numerator on given date
     def getWeightAtDate (self, tradeCapAtDay):
        return tradeCapAtDay/(tradeCapAtDay.sum())
     #  get trade capital at given date
     def getTradeCapAtDate(self, port, tradeCapdf, date):
         return pd.DataFrame(tradeCapdf[port].loc[date])
+    #  get the return of a list stocks at given date
     def getReturnAtDate(self, port, rtdf, date):
         return pd.DataFrame(rtdf[port].loc[date])
     # returns the list of list of stock codes
@@ -50,7 +53,7 @@ class ports_test():
         for i in range(0, self.numOfPorts):
             port.append(orderedStockCodes[i*lenth:(i+1)*lenth-1])
         return port
-    # sort the factors in same date in ascending order
+    # sort the factors in same date in descending order
     # return the corresponding stock codes
     def sortFactor (self, df,date):
         series = df.loc[date]
@@ -64,9 +67,6 @@ class ports_test():
             a = "port" + str(i)
             portNames.append(a)
         return portNames
-
-
-
-
-
-
+    # show the plot of
+    def showPlot(self):
+        self.cumRtDataFrame.plot()

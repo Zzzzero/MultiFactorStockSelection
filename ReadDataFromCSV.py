@@ -76,11 +76,11 @@ class ReadDataFromCSV (object):
     def prepareFactorAtDate(self, dates):  # dates is in array
         self.Data = self.Data.loc[dates]
 # the abstract stock and Factor group
-class read_Stock_Factor(ReadDataFromCSV):
+class Read_Stock_Factor (ReadDataFromCSV):
     def __init__(self, factorFileName,
                  path="D:/cStrategy/Factor/",
                  dropDelisted = True):
-        super(read_Stock_Factor, self).__init__(factorFileName, path)
+        super(Read_Stock_Factor, self).__init__(factorFileName, path)
         if dropDelisted:
             # get delisted stocks
             delistStocks = self.getDelisted()
@@ -96,14 +96,14 @@ class read_Stock_Factor(ReadDataFromCSV):
             if delistFrame[codes].values[0]:
                 delistStocks.append(codes)
         return delistStocks
-class readStockFromCSV (read_Stock_Factor):
+class ReadStockFromCSV (Read_Stock_Factor):
     #  stocks has a sector index
     sector = pd.DataFrame()
     def __init__(self, factorFileName,
                  path="D:/cStrategy/Factor/",
                  sectorFileName="LZ_GPA_INDU_ZX",
                  indexPath="D:/cStrategy/Factor/"):
-        super(readStockFromCSV, self).__init__(factorFileName, path)
+        super(ReadStockFromCSV, self).__init__(factorFileName, path)
         # default path are set to be ZHONGXIN sector
         path2 = indexPath+sectorFileName+".csv"
         self.sector = pd.read_csv(filepath_or_buffer=path2).tail(1)
@@ -111,13 +111,13 @@ class readStockFromCSV (read_Stock_Factor):
         self.sector.drop(self.getDelisted(), axis=1, inplace=True)
     #  calculating stock return over given period of days
     #  and returns the period begain
-    def CalcReturn (self, df):
+    def calcReturn (self, df):
         df = df / df.shift(1) - 1  # calc and return
         pre_date = df.index.delete(-1)
         return df.drop(df.index[0]), pre_date # drop the fist line as it is Nan
 
 # the object Factors
-class readFactorFromCSV (read_Stock_Factor):
+class ReadFactorFromCSV (Read_Stock_Factor):
     # returns standarlized value of each columns in given dataFrame df
     def standarlizedFactors(self, df):
         # this method could be extended with multiple method input
@@ -131,13 +131,13 @@ class readFactorFromCSV (read_Stock_Factor):
         ################
         return df
 # the object indexs
-class indexFromCSV(ReadDataFromCSV):
+class IndexFromCSV(ReadDataFromCSV):
     def __init__(self, indexName = "000300.SH",
                  factorFileName="LZ_GPA_INDXQUOTE_CLOSE",
                  path="D:/cStrategy/Factor/"):
-        super(indexFromCSV, self).__init__(factorFileName, path)
+        super(IndexFromCSV, self).__init__(factorFileName, path)
         self.Data = self.Data[indexName]
-    def CalcReturn (self, df):
+    def calcReturn (self, df):
         df = df / df.shift(1) - 1  # calc and return
         pre_date = df.index.delete(-1)  # return the period start date
         return df.drop(df.index[0]), pre_date

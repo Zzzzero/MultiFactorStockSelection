@@ -7,40 +7,40 @@ import ReadDataFromCSV as rd
 import Factor_test_frame_ports as ftp
 
 # load stocks
-stocks = rd.readStockFromCSV("LZ_GPA_QUOTE_TCLOSE")
+stocks = rd.ReadStockFromCSV("LZ_GPA_QUOTE_TCLOSE")
 # load factor
-PE = rd.readFactorFromCSV("LZ_GPA_VAL_PB")
+pe = rd.ReadFactorFromCSV("LZ_GPA_VAL_PE")
 # load stock index
-stock_index = rd.indexFromCSV()
+stock_index = rd.IndexFromCSV()
 # load trading capital
-tradecap = rd.read_Stock_Factor("LZ_GPA_VAL_A_TCAP")
+tradecap = rd.Read_Stock_Factor("LZ_GPA_VAL_A_TCAP")
 # data prepare
 # cacl stock returns on monthy ends #
 # use to set test start time        #
-start = "20150101"                  #
+start = "20090101"                  #
 end = "20170301"                    #
 stocks.setStartTime(start)          #
 stocks.setEndTime(end)              #
-PE.setStartTime(start)              #
-PE.setEndTime(end)                  #
+pe.setStartTime(start)              #
+pe.setEndTime(end)                  #
 stock_index.setStartTime(start)     #
 stock_index.setEndTime(end)         #
 tradecap.setStartTime(start)        #
 tradecap.setEndTime(end)            #
 #####################################
-PE.dropNan()  # filter out poor data Factors
-PeLabel = PE.getlabels()  # get current continent labels
+pe.dropNan()  # filter out poor data Factors
+peLabel = pe.getlabels()  # get current continent labels
 # use same label as in Factor
-stocks.usePartially(PeLabel)
-tradecap.usePartially(PeLabel)
+stocks.usePartially(peLabel)
+tradecap.usePartially(peLabel)
 # set rt time window
 stocks.setValueAtMonthEnd()
 tradecap.setValueAtMonthEnd()
-PE.setValueAtMonthEnd()
+pe.setValueAtMonthEnd()
 stock_index.setValueAtMonthEnd()
 
 # calc parameters
-rts, _ = stocks.CalcReturn(stocks.Data)
-indexrts, _ = stock_index.CalcReturn(stock_index.Data)
+rts, _ = stocks.calcReturn(stocks.Data)
+indexrts, _ = stock_index.calcReturn(stock_index.Data)
 
-test = ftp.ports_test(5, PE.Data, rts, tradecap.Data)
+test = ftp.Ports_test(5, pe.Data, rts, tradecap.Data)
