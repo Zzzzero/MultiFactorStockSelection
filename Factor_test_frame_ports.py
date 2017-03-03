@@ -9,11 +9,10 @@ import ReadDataFromCSV as rd
 class Ports_test():
     numOfPorts = None
     # initilization
-    def __init__(self, numberOfPorts ,FactorObj, stocksObj, tradeCapObj):
-        fdf = FactorObj.Data
-        rtdf, _= stocksObj.calcReturn(stocksObj.Data)
-        print(rtdf.index)
-        tradeCapdf = tradeCapObj.Data
+    def __init__(self, numberOfPorts ,FactorObj, stocksObj, tradeCapObj, neutralized = False):
+        fdf = FactorObj.getDataFrame()
+        rtdf, _ = stocksObj.calcReturn(stocksObj.Data)
+        tradeCapdf = tradeCapObj.getDataFrame()
 
         self.numOfPorts = int(numberOfPorts)
         # naming the portfolios
@@ -25,7 +24,7 @@ class Ports_test():
         self.rtDataframe = pd.DataFrame(columns=portNames, index=fdf.index)
         # filling the data frame of portfolio returns
         for date in rtdf.index:
-            ports = self.intoPorts(fdf, date)
+            ports = self.intoPorts(fdf, date, neutralized)
             i = 0
             for item in ports:
                 rtAtDate = self.getReturnAtDate(item, rtdf, date)
@@ -49,14 +48,23 @@ class Ports_test():
     #  get the return of a list stocks at given date
     def getReturnAtDate(self, port, rtdf, date):
         return pd.DataFrame(rtdf[port].loc[date])
+    # get the industry list of input stocks
+    def getIndustry(self):
+
+
     # returns the list of list of stock codes
-    def intoPorts(self, fdf, date):
-        port = []
-        # start with the largest
-        orderedStockCodes = self.sortFactor(fdf, date)
-        lenth = len(orderedStockCodes)/self.numOfPorts
-        for i in range(0, self.numOfPorts):
-            port.append(orderedStockCodes[i*lenth:(i+1)*lenth-1])
+    def intoPorts(self, fdf, date,neutralized):
+        if neutralized:
+            # neutralize the industrial effect
+            print()
+        else:
+            # not neutralize the industrial effect
+            port = []
+            # start with the largest
+            orderedStockCodes = self.sortFactor(fdf, date)
+            lenth = len(orderedStockCodes) / self.numOfPorts
+            for i in range(0, self.numOfPorts):
+                port.append(orderedStockCodes[i * lenth:(i + 1) * lenth - 1])
         return port
     # sort the factors in same date in descending order
     # return the corresponding stock codes
@@ -75,7 +83,6 @@ class Ports_test():
     # show the plot of
     def showPlot(self):
         self.cumRtDataFrame.plot()
-
 #####################################################
         # unimplemented method to check the
         # validity of the factor
