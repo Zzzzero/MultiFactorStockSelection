@@ -9,15 +9,14 @@ import Factor_test_frame_ports as ftp
 # load stocks
 stocks = rd.readStockFromCSV("LZ_GPA_QUOTE_TCLOSE")
 # load factor
-PE = rd.readFactorFromCSV("LZ_GPA_VAL_PE")
+PE = rd.readFactorFromCSV("LZ_GPA_VAL_PB")
 # load stock index
 stock_index = rd.indexFromCSV()
 # load trading capital
 tradecap = rd.read_Stock_Factor("LZ_GPA_VAL_A_TCAP")
-
 # data prepare
-
-# cacl stock returns on monthy ends# use to set test start time#########
+# cacl stock returns on monthy ends #
+# use to set test start time        #
 start = "20150101"                  #
 end = "20170301"                    #
 stocks.setStartTime(start)          #
@@ -26,8 +25,8 @@ PE.setStartTime(start)              #
 PE.setEndTime(end)                  #
 stock_index.setStartTime(start)     #
 stock_index.setEndTime(end)         #
-tradecap.setStartTime(start)
-tradecap.setEndTime(end)
+tradecap.setStartTime(start)        #
+tradecap.setEndTime(end)            #
 #####################################
 PE.dropNan()  # filter out poor data Factors
 PeLabel = PE.getlabels()  # get current continent labels
@@ -44,8 +43,4 @@ stock_index.setValueAtMonthEnd()
 rts, _ = stocks.CalcReturn(stocks.Data)
 indexrts, _ = stock_index.CalcReturn(stock_index.Data)
 
-test = ftp.ports_test(100, PE.Data, rts, tradecap.Data)
-
-
-
-
+test = ftp.ports_test(5, PE.Data, rts, tradecap.Data)
