@@ -71,7 +71,7 @@ class ReadDataFromCSV (object):
         return self.Data.columns.copy()
     # set the data be at the end of each month
     def setValueAtMonthEnd(self):
-        self.Data = self.Data.groupby(pd.TimeGrouper("M")).nth(0)
+        self.Data = self.Data.groupby(pd.TimeGrouper("M")).nth(-1)
     # returns the factor value at provided date
     def prepareFactorAtDate(self, dates):  # dates is in array
         self.Data = self.Data.loc[dates]
@@ -98,7 +98,6 @@ class Read_Stock_Factor (ReadDataFromCSV):
         return delistStocks
 class ReadStockFromCSV (Read_Stock_Factor):
     #  stocks has a sector index
-    sector = pd.DataFrame()
     def __init__(self, factorFileName,
                  path="D:/cStrategy/Factor/",
                  sectorFileName="LZ_GPA_INDU_ZX",
@@ -106,9 +105,16 @@ class ReadStockFromCSV (Read_Stock_Factor):
         super(ReadStockFromCSV, self).__init__(factorFileName, path)
         # default path are set to be ZHONGXIN sector
         path2 = indexPath+sectorFileName+".csv"
-        self.sector = pd.read_csv(filepath_or_buffer=path2).tail(1)
-        self.sector.drop(sectorFileName+"-t", axis=1, inplace=True)
-        self.sector.drop(self.getDelisted(), axis=1, inplace=True)
+        self.sector = pd.read_csv(filepath_or_buffer=path2)
+        index = self.sector["LZ_GPA_INDU_ZX-t"].astype(str)
+        index = pd.to_datetime(index)
+        self.sector.set_index(index)
+        ##################################################################
+        ################BUG HERER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        ##################################################################
+        self.sector = self.sector.drop(sectorFileName+"-t", axis=1, inplace=True)
+        self.sector = self.sector.drop(self.getDelisted(), axis=1, inplace=True)
     #  calculating stock return over given period of days
     #  and returns the period begain
     def calcReturn (self, df):

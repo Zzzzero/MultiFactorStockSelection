@@ -24,7 +24,7 @@ class Ports_test():
         self.rtDataframe = pd.DataFrame(columns=portNames, index=fdf.index)
         # filling the data frame of portfolio returns
         for date in rtdf.index:
-            ports = self.intoPorts(fdf, date, neutralized)
+            ports = self.intoPorts(fdf, date, neutralized)############################################行业改进 在 intoPorts里
             i = 0
             for item in ports:
                 rtAtDate = self.getReturnAtDate(item, rtdf, date)
@@ -52,14 +52,17 @@ class Ports_test():
     def getIndustry(self):
 
 
+
+
+        return None
     # returns the list of list of stock codes
-    def intoPorts(self, fdf, date,neutralized):
+    def intoPorts (self, fdf, date, neutralized):
+        port = []
         if neutralized:
             # neutralize the industrial effect
             print()
         else:
             # not neutralize the industrial effect
-            port = []
             # start with the largest
             orderedStockCodes = self.sortFactor(fdf, date)
             lenth = len(orderedStockCodes) / self.numOfPorts

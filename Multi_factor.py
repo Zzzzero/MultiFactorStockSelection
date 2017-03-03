@@ -42,4 +42,4 @@ stock_index.setValueAtMonthEnd()
 rts, _ = stocks.calcReturn(stocks.Data)
 indexrts, _ = stock_index.calcReturn(stock_index.Data)
 
-test = ftp.Ports_test(5, pe, stocks, tradecap)
+test = ftp.Ports_test(5, pe, stocks, tradecap, False)
