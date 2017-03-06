@@ -9,11 +9,10 @@ import ReadDataFromCSV as rd
 class Ports_test():
     numOfPorts = None
     # initilization
-    def __init__(self, numberOfPorts ,FactorObj, stocksObj, tradeCapObj, neutralized = False):
+    def __init__(self, numberOfPorts ,FactorObj, stocksObj, tradeCapObj, industry = None, neutralized = False):
         fdf = FactorObj.getDataFrame()
         rtdf, _ = stocksObj.calcReturn(stocksObj.Data)
         tradeCapdf = tradeCapObj.getDataFrame()
-
         self.numOfPorts = int(numberOfPorts)
         # naming the portfolios
         portNames = self.namePorts(numberOfPorts)
@@ -24,7 +23,7 @@ class Ports_test():
         self.rtDataframe = pd.DataFrame(columns=portNames, index=fdf.index)
         # filling the data frame of portfolio returns
         for date in rtdf.index:
-            ports = self.intoPorts(fdf, date, neutralized)############################################行业改进 在 intoPorts里
+            ports = self.intoPorts(fdf, date, neutralized, industry)#行业改进 在 intoPorts里
             i = 0
             for item in ports:
                 rtAtDate = self.getReturnAtDate(item, rtdf, date)
@@ -48,31 +47,37 @@ class Ports_test():
     #  get the return of a list stocks at given date
     def getReturnAtDate(self, port, rtdf, date):
         return pd.DataFrame(rtdf[port].loc[date])
-    # get the industry list of input stocks
-    def getIndustry(self):
-
-
-
-
-        return None
+    # get the industry list of list of stocks in different industry
+    def getIndustryLists(self, industry, date):
+        row = industry.loc[date]
+        indust = []
+        for i in range(1, 24):
+            indust.append(row[row == i].index.tolist())
+        indust.append(row[np.isnan(row)].index.tolist())
+        return indust
     # returns the list of list of stock codes
-    def intoPorts (self, fdf, date, neutralized):
-        port = []
+    def intoPorts (self, fdf, date, neutralized = False, industry = None):
         if neutralized:
-            # neutralize the industrial effect
-            print()
+            # create  the list of lists
+            port = [[] for _ in range(0, self.numOfPorts)]
+            industryIndexAtDate = self.getIndustryLists(industry, date)
+            for item in industryIndexAtDate:
+                orderedStockCodes = self.sortFactor(fdf[item].loc[date])
+                lenth = len(orderedStockCodes)/self.numOfPorts
+                for i in range(0, self.numOfPorts):
+                    port[i].extend(orderedStockCodes[i*lenth:(i+1)*lenth-1])
         else:
+            port = []
             # not neutralize the industrial effect
             # start with the largest
-            orderedStockCodes = self.sortFactor(fdf, date)
+            orderedStockCodes = self.sortFactor(fdf.loc[date])
             lenth = len(orderedStockCodes) / self.numOfPorts
             for i in range(0, self.numOfPorts):
                 port.append(orderedStockCodes[i * lenth:(i + 1) * lenth - 1])
         return port
     # sort the factors in same date in descending order
     # return the corresponding stock codes
-    def sortFactor (self, df,date):
-        series = df.loc[date]
+    def sortFactor (self, series):
         # from the biggest to smallest
         sort = series.sort_values(ascending=False)
         return sort.index.tolist()

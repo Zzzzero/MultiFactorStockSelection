@@ -19,10 +19,10 @@ class ReadDataFromCSV (object):
         # read the Data Frame
         Data = pd.read_csv(filepath_or_buffer=path)
         # indexing the data
-        index = Data[self.Name+"-d"].astype(str)
+        index = Data.ix[:, 0].astype(str)
         index = pd.to_datetime(index)
         # labeling the dataFrame
-        self.Data = Data.drop(self.Name+'-d', axis=1).set_index(index)
+        self.Data = Data.drop(Data.columns[0], axis=1).set_index(index)
     # getter of the DataFrame of the factor at all avaliable stocks
     def getDataFrame(self):
         return self.Data.copy()
@@ -71,7 +71,8 @@ class ReadDataFromCSV (object):
         return self.Data.columns.copy()
     # set the data be at the end of each month
     def setValueAtMonthEnd(self):
-        self.Data = self.Data.groupby(pd.TimeGrouper("M")).nth(-1)
+        monthEndValue = pd.groupby(self.Data, by=[self.Data.index.year, self.Data.index.month]).size().cumsum()-1
+        monthEndValue = self.Data.iloc[monthEndValue]
     # returns the factor value at provided date
     def prepareFactorAtDate(self, dates):  # dates is in array
         self.Data = self.Data.loc[dates]
@@ -99,22 +100,10 @@ class Read_Stock_Factor (ReadDataFromCSV):
 class ReadStockFromCSV (Read_Stock_Factor):
     #  stocks has a sector index
     def __init__(self, factorFileName,
-                 path="D:/cStrategy/Factor/",
-                 sectorFileName="LZ_GPA_INDU_ZX",
-                 indexPath="D:/cStrategy/Factor/"):
+                 path="D:/cStrategy/Factor/"):
         super(ReadStockFromCSV, self).__init__(factorFileName, path)
         # default path are set to be ZHONGXIN sector
-        path2 = indexPath+sectorFileName+".csv"
-        self.sector = pd.read_csv(filepath_or_buffer=path2)
-        index = self.sector["LZ_GPA_INDU_ZX-t"].astype(str)
-        index = pd.to_datetime(index)
-        self.sector.set_index(index)
-        ##################################################################
-        ################BUG HERER!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        #!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        ##################################################################
-        self.sector = self.sector.drop(sectorFileName+"-t", axis=1, inplace=True)
-        self.sector = self.sector.drop(self.getDelisted(), axis=1, inplace=True)
+
     #  calculating stock return over given period of days
     #  and returns the period begain
     def calcReturn (self, df):
