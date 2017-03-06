@@ -9,7 +9,7 @@ import Factor_test_frame_ports as ftp
 stocks = rd.ReadStockFromCSV("LZ_GPA_QUOTE_TCLOSE")
 industry = rd.ReadFactorFromCSV("LZ_GPA_INDU_ZX")
 # load factor
-pe = rd.ReadFactorFromCSV("LZ_GPA_DERI_LnFloatCap")
+pe = rd.ReadFactorFromCSV("LZ_GPA_VAL_PS")
 # load stock index
 stock_index = rd.IndexFromCSV()
 # load trading capital
@@ -17,7 +17,7 @@ tradecap = rd.Read_Stock_Factor("LZ_GPA_VAL_A_TCAP")
 # data prepare
 # cacl stock returns on monthy ends #
 # use to set test start time        #
-start = "20150101"                  #
+start = "20050101"                  #
 end = "20170301"                    #
 stocks.setStartTime(start)          #
 stocks.setEndTime(end)
