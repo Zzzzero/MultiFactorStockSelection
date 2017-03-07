@@ -21,6 +21,7 @@ class Ports_test():
         fdf.drop(fdf.index[0], inplace=True)
         # creating empty dataframe storing port returns at each return date
         self.rtDataframe = pd.DataFrame(columns=portNames, index=fdf.index)
+        self.portAveFactor = pd.DataFrame(columns=portNames, index=fdf.index)
         # filling the data frame of portfolio returns
         for date in rtdf.index:
             ports = self.intoPorts(fdf, date, neutralized, industry)
@@ -29,6 +30,7 @@ class Ports_test():
                 rtAtDate = self.getReturnAtDate(item, rtdf, date)
                 tradeCapAtDate = self.getTradeCapAtDate(item, tradeCapdf, date)
                 weightAtDate = self.getWeightAtDate(tradeCapAtDate)
+                self.portAveFactor.loc[date][portNames[i]] = fdf[item].loc[date].mean()
                 self.rtDataframe.loc[date][portNames[i]] = self.calcRtForPort(weightAtDate, rtAtDate).ix[0, 0]
                 i += 1
         # filling the dataframe of portfolio cumulative returns
@@ -107,3 +109,22 @@ class Ports_test():
         #    count(cumrt(port 1)>indexrt)/#allcase
         #    count(cumrt(port n)<indexrt)/#allcase
 ####################################################
+
+    #  the rank correlation of Factors and returns
+    def factorRtCorr(self, type ="pearson"):
+
+        portRts = self.rtDataframe  # port returns(over columns)
+        portRtValue = portRts.values
+        portRtlist = [r for sublist in portRtValue for r in sublist]
+
+        portAveFactor = self.portAveFactor  # the average factor value for each port
+        portAveFactorValue = portAveFactor.values
+        portAveFactorlist = [f for sublist in portAveFactorValue for f in sublist]
+
+        columns = ["Factor", "Return"]
+        relation = pd.DataFrame(columns=columns)
+        relation["Factor"] = portAveFactorlist
+        relation["Return"] = portRtlist
+        # compute the correlation
+        return relation.corr(type).ix[0, 1]
+
