@@ -111,7 +111,7 @@ class Ports_test():
 ####################################################
 
     #  the rank correlation of Factors and returns
-    def factorRtCorr(self, type ="pearson"):
+    def factorRtCorr(self, method="pearson"):
 
         portRts = self.rtDataframe  # port returns(over columns)
         portRtValue = portRts.values
@@ -126,5 +126,34 @@ class Ports_test():
         relation["Factor"] = portAveFactorlist
         relation["Return"] = portRtlist
         # compute the correlation
-        return relation.corr(type).ix[0, 1]
+        return relation.corr(method).ix[0, 1]
+    def corr(self):
+        portRtrank = self.rtDataframe.rank(axis=1)
+        portRtValue = portRtrank.values
+        portrtlist = [r for sub in portRtValue for r in sub]
+        portFacRank = pd.DataFrame(index= portRtrank.index, columns=portRtrank.columns)
+        for date in portRtrank.index:
+            rank = self.numOfPorts
+            for item in portRtrank.columns:
+                portFacRank[item].loc[date] = rank
+                rank -= 1
+        portFacValue = portFacRank.values
+        portFacList = [f for sub in portFacValue for f in sub]
+
+        columns = ["Factor", "Return"]
+        relation = pd.DataFrame(columns=columns)
+        relation["Factor"] = portFacList
+        relation["Return"] = portrtlist
+
+        return relation.corr().ix[1, 0]
+    # a method checks the port return with index
+    # the best port should constantly beats market
+    # the worst port should constantly underperforms the market
+    def winLoseOnIndex(self):
+
+        return None
+    # the monotonicity of the factor value and port returns
+    def aveRts(self):
+
+        return None
 
