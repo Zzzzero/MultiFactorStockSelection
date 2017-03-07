@@ -9,7 +9,7 @@ import ReadDataFromCSV as rd
 class Ports_test():
     numOfPorts = None
     # initilization
-    def __init__(self, numberOfPorts ,FactorObj, stocksObj, tradeCapObj, industry = None, neutralized = False):
+    def __init__(self, numberOfPorts ,FactorObj, stocksObj, indexObj, tradeCapObj, industry = None, neutralized = False):
         fdf = FactorObj.getDataFrame()
         rtdf, _ = stocksObj.calcReturn(stocksObj.Data)
         tradeCapdf = tradeCapObj.getDataFrame()
@@ -23,19 +23,22 @@ class Ports_test():
         self.rtDataframe = pd.DataFrame(columns=portNames, index=fdf.index)
         # filling the data frame of portfolio returns
         for date in rtdf.index:
-            ports = self.intoPorts(fdf, date, neutralized, industry)#行业改进 在 intoPorts里
+            ports = self.intoPorts(fdf, date, neutralized, industry)
             i = 0
             for item in ports:
                 rtAtDate = self.getReturnAtDate(item, rtdf, date)
                 tradeCapAtDate = self.getTradeCapAtDate(item, tradeCapdf, date)
                 weightAtDate = self.getWeightAtDate(tradeCapAtDate)
-                #print(rtAtDate)
-                #print (weightAtDate)
-                #print (rtAtDate*weightAtDate)
                 self.rtDataframe.loc[date][portNames[i]] = self.calcRtForPort(weightAtDate, rtAtDate).ix[0, 0]
                 i += 1
         # filling the dataframe of portfolio cumulative returns
         self.cumRtDataFrame = (self.rtDataframe+1).cumprod(0)
+        indexCumrts = indexObj.cumRts()
+        if not (self.cumRtDataFrame.index == indexCumrts.index).any():
+            raise ValueError("index value not match")
+        self.cumRtDataFrame[indexObj.getIndexCode()] = indexCumrts
+        # evaluation the factor
+
     def calcRtForPort (self, weightAtDate, rtAtDate):
         return (weightAtDate*rtAtDate).sum()
     # calculate the weight of stocks using trade capital as numerator on given date

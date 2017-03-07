@@ -138,7 +138,11 @@ class IndexFromCSV(ReadDataFromCSV):
         df = df / df.shift(1) - 1  # calc and return
         pre_date = df.index.delete(-1)  # return the period start date
         return df.drop(df.index[0]), pre_date
-
+    def cumRts(self):
+        rts, _ = self.calcReturn(self.Data)
+        return (rts + 1).cumprod(0)
+    def getIndexCode (self):
+        return self.Data.name
 # calc return premium, df and series must be the dataframe and series
 # of return over the same period on stocks and index
 # input stock return df, index return series
