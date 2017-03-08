@@ -131,7 +131,7 @@ class Ports_test():
         portRtrank = self.rtDataframe.rank(axis=1)
         portRtValue = portRtrank.values
         portrtlist = [r for sub in portRtValue for r in sub]
-        portFacRank = pd.DataFrame(index= portRtrank.index, columns=portRtrank.columns)
+        portFacRank = pd.DataFrame(index=portRtrank.index, columns=portRtrank.columns)
         for date in portRtrank.index:
             rank = self.numOfPorts
             for item in portRtrank.columns:
@@ -150,10 +150,16 @@ class Ports_test():
     # the best port should constantly beats market
     # the worst port should constantly underperforms the market
     def winLoseOnIndex(self):
-
-        return None
+        ports = self.cumRtDataFrame[self.cumRtDataFrame.columns[0:self.numOfPorts]]
+        for item in ports:
+            ports[item] = ports[item]-self.cumRtDataFrame[self.cumRtDataFrame.columns[-1]]
+        print(ports)
+        print(type(ports))
+        lenth = len(ports)
+        win = (ports > 0).sum() / lenth
+        lose = (ports < 0).sum() / lenth
+        return win, lose
     # the monotonicity of the factor value and port returns
     def aveRts(self):
-
-        return None
+        return self.rtDataframe.mean()
 
