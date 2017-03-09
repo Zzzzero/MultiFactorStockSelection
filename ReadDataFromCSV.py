@@ -106,11 +106,10 @@ class ReadStockFromCSV (Read_Stock_Factor):
 
     #  calculating stock return over given period of days
     #  and returns the period begain
-    def calcReturn (self, df):
-        df = df.copy()
+    def calcReturn (self):
+        df = self.Data.copy()
         df = df / df.shift(1) - 1  # calc and return
-        pre_date = df.index.delete(-1)
-        return df.drop(df.index[0]), pre_date # drop the fist line as it is Nan
+        return df.drop(df.index[0])# drop the fist line as it is Nan
 
 # the object Factors
 class ReadFactorFromCSV (Read_Stock_Factor):
@@ -133,13 +132,12 @@ class IndexFromCSV(ReadDataFromCSV):
                  path="D:/cStrategy/Factor/"):
         super(IndexFromCSV, self).__init__(factorFileName, path)
         self.Data = self.Data[indexName]
-    def calcReturn (self, df):
-        df = df.copy()
+    def calcReturn (self):
+        df = self.Data.copy()
         df = df / df.shift(1) - 1  # calc and return
-        pre_date = df.index.delete(-1)  # return the period start date
-        return df.drop(df.index[0]), pre_date
+        return df.drop(df.index[0])
     def cumRts(self):
-        rts, _ = self.calcReturn(self.Data)
+        rts = self.calcReturn()
         return (rts + 1).cumprod(0)
     def getIndexCode (self):
         return self.Data.name

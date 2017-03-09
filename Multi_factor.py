@@ -30,12 +30,12 @@ stock_index.setEndTime(end)         #
 tradecap.setStartTime(start)        #
 tradecap.setEndTime(end)            #
 #####################################
-#pe.dropNan()  # filter out poor data Factors
-#peLabel = pe.getlabels()  # get current continent labels
+pe.dropNan()  # filter out poor data Factors
+peLabel = pe.getlabels()  # get current continent labels
 # use same label as in Factor
-#stocks.usePartially(peLabel)
-#industry.usePartially(peLabel)
-#tradecap.usePartially(peLabel)
+stocks.usePartially(peLabel)
+industry.usePartially(peLabel)
+tradecap.usePartially(peLabel)
 # set rt time window
 stocks.setValueAtMonthEnd()
 industry.setValueAtMonthEnd()

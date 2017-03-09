@@ -11,9 +11,10 @@ class Ports_test():
     # initilization
     def __init__(self, numberOfPorts ,FactorObj, stocksObj, indexObj, tradeCapObj, industry = None, neutralized = False):
         fdf = FactorObj.getDataFrame()
-        rtdf, _ = stocksObj.calcReturn(stocksObj.Data)
+        rtdf = stocksObj.calcReturn()
         tradeCapdf = tradeCapObj.getDataFrame()
         self.numOfPorts = int(numberOfPorts)
+        self.indexObj = indexObj
         # naming the portfolios
         portNames = self.namePorts(numberOfPorts)
         # indexing factor with the date on which it generates portfolio returns
@@ -35,12 +36,8 @@ class Ports_test():
                 i += 1
         # filling the dataframe of portfolio cumulative returns
         self.cumRtDataFrame = (self.rtDataframe+1).cumprod(0)
-        indexCumrts = indexObj.cumRts()
-        if not (self.cumRtDataFrame.index == indexCumrts.index).any():
-            raise ValueError("index value not match")
-        self.cumRtDataFrame[indexObj.getIndexCode()] = indexCumrts
         # evaluation the factor
-
+# section 1, run the simulation
     def calcRtForPort (self, weightAtDate, rtAtDate):
         return (weightAtDate*rtAtDate).sum()
     # calculate the weight of stocks using trade capital as numerator on given date
@@ -93,9 +90,27 @@ class Ports_test():
             a = "port" + str(i)
             portNames.append(a)
         return portNames
-    # show the plot of
-    def showPlot(self):
-        self.cumRtDataFrame.plot()
+    # this returns the excess return of ports over index in each period
+    def excessRts(self):
+        df = self.indexObj.calcReturn()
+        return self.excessOverIndex(self.rtDataframe, df)
+    # this gives the return or cumrt over index
+    def excessOverIndex(self, df, indexdf):
+        df = df.copy()
+        for item in df.columns[0:self.numOfPorts]:
+            df[item] = df[item] - indexdf
+        return df
+# section 2 , the graphs
+    # show the plot of the cumulative reuturns of each ports
+    def showCumRtPlot(self):
+        df = self.cumRtDataFrame.copy()
+        df[self.indexObj.getIndexCode()] = self.indexObj.cumRts()
+        return df.plot()
+    # show the scatter plot of port1 - port5 pair
+    def port1ToNScatterExRts(self):
+        df = self.excessRts()
+        return df.ix[:, [0, self.numOfPorts-1]].plot(kind="scatter", x=df.columns[0], y=df.columns[self.numOfPorts-1])
+
 #####################################################
         # unimplemented method to check the
         # validity of the factor
@@ -109,8 +124,9 @@ class Ports_test():
         #    count(cumrt(port 1)>indexrt)/#allcase
         #    count(cumrt(port n)<indexrt)/#allcase
 ####################################################
-
     #  the rank correlation of Factors and returns
+# section 3, the evaluation of chosen factor
+    # the correlation
     def factorRtCorr(self, method="pearson"):
 
         portRts = self.rtDataframe  # port returns(over columns)
@@ -146,20 +162,18 @@ class Ports_test():
         relation["Return"] = portrtlist
 
         return relation.corr().ix[1, 0]
+    # the monotonicity of the factor value and port returns
+    def aveRtRanks(self):
+        return self.rtDataframe.mean().rank()
     # a method checks the port return with index
     # the best port should constantly beats market
     # the worst port should constantly underperforms the market
     def winLoseOnIndex(self):
-        ports = self.cumRtDataFrame[self.cumRtDataFrame.columns[0:self.numOfPorts]]
-        for item in ports:
-            ports[item] = ports[item]-self.cumRtDataFrame[self.cumRtDataFrame.columns[-1]]
-        print(ports)
-        print(type(ports))
+        ports = self.excessOverIndex(self.cumRtDataFrame, self.indexObj.cumRts())
         lenth = len(ports)
         win = (ports > 0).sum() / lenth
         lose = (ports < 0).sum() / lenth
         return win, lose
-    # the monotonicity of the factor value and port returns
-    def aveRts(self):
-        return self.rtDataframe.mean()
+
+
 
