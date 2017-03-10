@@ -2,7 +2,11 @@
 # import basic packages
 import numpy as np
 import pandas as pd
+import statsmodels as stm
 import matplotlib.pyplot as plt
+#  excle editing tool
+from xlutils.copy import copy
+from xlrd import open_workbook
 # import project file
 import ReadDataFromCSV as rd
 
@@ -10,6 +14,7 @@ class Ports_test():
     numOfPorts = None
     # initilization
     def __init__(self, numberOfPorts ,FactorObj, stocksObj, indexObj, tradeCapObj, industry = None, neutralized = False):
+        self.factorName = FactorObj.getDataName()
         fdf = FactorObj.getDataFrame()
         rtdf = stocksObj.calcReturn()
         tradeCapdf = tradeCapObj.getDataFrame()
@@ -99,7 +104,7 @@ class Ports_test():
         df = df.copy()
         for item in df.columns[0:self.numOfPorts]:
             df[item] = df[item] - indexdf
-        return df
+        return df.astype(float)
 # section 2 , the graphs
     # show the plot of the cumulative reuturns of each ports
     def showCumRtPlot(self):
@@ -111,26 +116,15 @@ class Ports_test():
         df = self.excessRts()
         return df.ix[:, [0, self.numOfPorts-1]].plot(kind="scatter", x=df.columns[0], y=df.columns[self.numOfPorts-1])
 
-#####################################################
-        # unimplemented method to check the
-        # validity of the factor
-        # 1. Factor value should corrlated with
-        #    ranks of ports corr(Fi,i)
-        # 2. Factor corr with port retrun
-        # if ARport1>ARportn --> corr>0
-        # if ARport1<ARportn --> corr<0
-        # 3. the relation should be robust in any
-        #    market condition
-        #    count(cumrt(port 1)>indexrt)/#allcase
-        #    count(cumrt(port n)<indexrt)/#allcase
-####################################################
-    #  the rank correlation of Factors and returns
 # section 3, the evaluation of chosen factor
     # the correlation
-    def factorRtCorr(self, method="pearson"):
+    def corrPortsExRts(self, method="pearson"):
+        df = self.excessRts()
+        return df.corr(method)
+    def factorExRtCorr(self, method="pearson"):
 
-        portRts = self.rtDataframe  # port returns(over columns)
-        portRtValue = portRts.values
+        portExRts = self.excessRts()  # port excess returns over index
+        portRtValue = portExRts.values
         portRtlist = [r for sublist in portRtValue for r in sublist]
 
         portAveFactor = self.portAveFactor  # the average factor value for each port
@@ -140,17 +134,17 @@ class Ports_test():
         columns = ["Factor", "Return"]
         relation = pd.DataFrame(columns=columns)
         relation["Factor"] = portAveFactorlist
-        relation["Return"] = portRtlist
+        relation["Excess Return"] = portRtlist
         # compute the correlation
         return relation.corr(method).ix[0, 1]
     def corr(self):
-        portRtrank = self.rtDataframe.rank(axis=1)
-        portRtValue = portRtrank.values
-        portrtlist = [r for sub in portRtValue for r in sub]
-        portFacRank = pd.DataFrame(index=portRtrank.index, columns=portRtrank.columns)
-        for date in portRtrank.index:
+        portExRtrank = self.excessRts().rank(axis=1)
+        portExRtValue = portExRtrank.values
+        portrtlist = [r for sub in portExRtValue for r in sub]
+        portFacRank = pd.DataFrame(index=portExRtrank.index, columns=portExRtrank.columns)
+        for date in portExRtrank.index:
             rank = self.numOfPorts
-            for item in portRtrank.columns:
+            for item in portExRtrank.columns:
                 portFacRank[item].loc[date] = rank
                 rank -= 1
         portFacValue = portFacRank.values
@@ -162,18 +156,72 @@ class Ports_test():
         relation["Return"] = portrtlist
 
         return relation.corr().ix[1, 0]
+    # decide the direction of the influence of the factor
+    def directOfInfluByAveRt(self):
+        df = self.aveRtRanks()
+        if df[0] > df[-1]:
+            return 1
+        elif df[0] == df[-1]:
+            return 0
+        else:
+            return -1
+    def directOfInfluByCorr(self):
+        corr = self.factorExRtCorr()
+        if corr > 0:
+            return 1
+        elif corr == 0:
+            return 0
+        else:
+            return -1
     # the monotonicity of the factor value and port returns
-    def aveRtRanks(self):
+    def aveRtRanks (self):
         return self.rtDataframe.mean().rank()
-    # a method checks the port return with index
+    # decide if the how good is the monotonicity, good results attained as the value close to zero
+    def monotonicity (self):
+        monotonicity = -1  # initial value neg to avoid error usage
+        if self.directOfInfluByAveRt() == self.directOfInfluByCorr():
+            if self.directOfInfluByCorr() == 1:  # postive influence
+                arr = np.array(range(self.numOfPorts, 0, -1))
+                monotonicity = ((self.aveRtRanks()-arr).apply(np.square)).sum()
+            elif self.directOfInfluByCorr() == -1:  # neg influence
+                arr = np.array(range(1, self.numOfPorts+1, 1))
+                monotonicity = ((self.aveRtRanks()-arr).apply(np.square)).sum()
+            else:
+                monotonicity == np.inf
+        else:
+            monotonicity = np.inf
+        return monotonicity
+    # a method checks the port cumulative return with index
     # the best port should constantly beats market
     # the worst port should constantly underperforms the market
-    def winLoseOnIndex(self):
+    def cumRtwinLoseOnIndex(self):
         ports = self.excessOverIndex(self.cumRtDataFrame, self.indexObj.cumRts())
         lenth = len(ports)
         win = (ports > 0).sum() / lenth
         lose = (ports < 0).sum() / lenth
         return win, lose
+    # a method check port excess return with idnex
+    def ExRtwinLoseOnIndex(self):
+        ports = self.excessRts()
+        lenth = len(ports)
+        win = (ports > 0).sum() / lenth
+        lose = (ports < 0).sum() / lenth
+        return win, lose
+
+#  section 4 generate testing report
+    def writeReport(self):
+        filename = "C:/users/LZJF_02/Desktop/factor_test_report.csv"
+        rb = open_workbook(filename=filename)
+        wb = copy(rb)
+        sheet = wb.sheet(0)
+
+        sheet
+
+
+
+        return None
+
+
 
 
 

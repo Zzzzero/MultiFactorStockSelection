@@ -9,7 +9,7 @@ import Factor_test_frame_ports as ftp
 stocks = rd.ReadStockFromCSV("LZ_GPA_QUOTE_TCLOSE")
 industry = rd.ReadFactorFromCSV("LZ_GPA_INDU_ZX")
 # load factor
-pe = rd.ReadFactorFromCSV("LZ_GPA_VAL_PS_TTM")
+pe = rd.ReadFactorFromCSV("LZ_GPA_DERI_LnFloatCap")
 # load stock index
 stock_index = rd.IndexFromCSV("000001.SH")
 # load trading capital
