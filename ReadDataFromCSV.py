@@ -29,7 +29,7 @@ class ReadDataFromCSV (object):
         return self.Data.copy()
     # getter of the Factor name
     def getDataName(self):
-        return self.Name.copy()
+        return self.Name
     # getter of the Date time of the factor
     def getDateTime(self):
         return self.Data.index.copy()

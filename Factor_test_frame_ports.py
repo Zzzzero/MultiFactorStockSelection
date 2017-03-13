@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 #  excle editing tool
 from xlutils.copy import copy
 from xlrd import open_workbook
+import datetime as dt
 # import project file
 import ReadDataFromCSV as rd
 
@@ -173,12 +174,23 @@ class Ports_test():
             return 0
         else:
             return -1
+    def direction(self):
+        if self.directOfInfluByAveRt() == self.directOfInfluByCorr():
+            direction = self.directOfInfluByAveRt()
+        else:
+            direction = 0
+        return direction
     # the monotonicity of the factor value and port returns
     def aveRtRanks (self):
         return self.rtDataframe.mean().rank()
     # decide if the how good is the monotonicity, good results attained as the value close to zero
     def monotonicity (self):
         monotonicity = -1  # initial value neg to avoid error usage
+        # the poorest monotonicity if monotonicity can exam
+        maxM = 0
+        for i in range(1, self.numOfPorts+1):
+            maxM += (i-(self.numOfPorts+1)/2)**2
+
         if self.directOfInfluByAveRt() == self.directOfInfluByCorr():
             if self.directOfInfluByCorr() == 1:  # postive influence
                 arr = np.array(range(self.numOfPorts, 0, -1))
@@ -190,7 +202,7 @@ class Ports_test():
                 monotonicity == np.inf
         else:
             monotonicity = np.inf
-        return monotonicity
+        return monotonicity / maxM
     # a method checks the port cumulative return with index
     # the best port should constantly beats market
     # the worst port should constantly underperforms the market
@@ -207,6 +219,36 @@ class Ports_test():
         win = (ports > 0).sum() / lenth
         lose = (ports < 0).sum() / lenth
         return win, lose
+    def relativeWinRatio(self):
+        ports, _ = self.ExRtwinLoseOnIndex()
+        if self.direction() == 1:
+            return ports[0]/ports[self.numOfPorts-1]  # port1 rt / portN rt
+        elif self.direction() == -1:
+            return ports[self.numOfPorts-1]/ports[0]
+        else:
+            return -1
+    def relativeLoseRatio(self):
+        _, ports = self.ExRtwinLoseOnIndex()
+        if self.direction() == -1:
+            return ports[0] / ports[self.numOfPorts - 1]  # port1 rt / portN rt
+        elif self.direction() == 1:
+            return ports[self.numOfPorts - 1] / ports[0]
+        else:
+            return -1
+    # the evaluation result
+    def result(self):
+        columns = ["Test_Time",
+                   "direction",
+                   "relative_win_ratio",
+                   "relative_lose_ratio",
+                   "monotonicity"]
+        result = pd.DataFrame(index=[self.factorName], columns=columns)
+        result["Test_Time"] = str(dt.datetime.now())
+        result["direction"].iloc[0] = self.direction()
+        result["relative_win_ratio"].iloc[0] = self.relativeWinRatio()
+        result["relative_lose_ratio"].iloc[0] = self.relativeWinRatio()
+        result["monotonicity"].iloc[0] = self.monotonicity()
+        return result
 #  section 4 generate testing report
     def writeReport(self):
         filename = "C:/users/LZJF_02/Desktop/factor_test_report.csv"

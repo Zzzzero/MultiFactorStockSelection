@@ -43,14 +43,8 @@ tradecap.setValueAtMonthEnd()
 pe.setValueAtMonthEnd()
 stock_index.setValueAtMonthEnd()
 
-# calc parameters
-stock_indexrts = stock_index.cumRts()
 
 test = ftp.Ports_test(5, pe, stocks, stock_index, tradecap, industry.Data, True)
-test2 = ftp.Ports_test(5, pe, stocks, stock_index, tradecap)
+#test2 = ftp.Ports_test(5, pe, stocks, stock_index, tradecap)
 
-test.showPlot()
-test.factorRtCorr()
-#test2.showPlot()
-#test2.factorRtCorr()
 
