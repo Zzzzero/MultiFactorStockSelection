@@ -4,6 +4,7 @@
 import numpy as np
 import pandas as pd
 import datetime as dt
+import talib as tl
 
 # this is the parent object of all csv penaled data
 # has a name and DataFrame
@@ -110,7 +111,14 @@ class ReadStockFromCSV (Read_Stock_Factor):
         df = self.Data.copy()
         df = df / df.shift(1) - 1  # calc and return
         return df.drop(df.index[0])# drop the fist line as it is Nan
-
+    def getEMA(self, stockCode):
+        EMA = tl.MA(self.Data[stockCode].values, matype=1)
+        return pd.DataFrame(EMA).set_index(self.Data.index)
+    def getMACD(self, stockCode, fastpriod, slowperiod, sigperiod):
+        macd, macdsignal, macdhist = tl.MACDEXT(self.Data[stockCode], fastperiod=fastpriod, fastmatype=1,
+                                                slowperiod=slowperiod, slowmatype=1,
+                                                signalperiod=sigperiod, signalmatype=1)
+        return macd, macdsignal, macdhist
 # the object Factors
 class ReadFactorFromCSV (Read_Stock_Factor):
     # returns standarlized value of each columns in given dataFrame df

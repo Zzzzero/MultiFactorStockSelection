@@ -207,7 +207,6 @@ class Ports_test():
         win = (ports > 0).sum() / lenth
         lose = (ports < 0).sum() / lenth
         return win, lose
-
 #  section 4 generate testing report
     def writeReport(self):
         filename = "C:/users/LZJF_02/Desktop/factor_test_report.csv"
