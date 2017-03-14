@@ -9,7 +9,7 @@ import Factor_test_frame_ports as ftp
 stocks = rd.ReadStockFromCSV("LZ_GPA_QUOTE_TCLOSE")
 industry = rd.ReadFactorFromCSV("LZ_GPA_INDU_ZX")
 # load factor
-pe = rd.ReadFactorFromCSV("LZ_GPA_DERI_LnFloatCap")
+pe = rd.ReadFactorFromCSV("LZ_GPA_FIN_IND_PROFITTOGR")
 # load stock index
 stock_index = rd.IndexFromCSV("000001.SH")
 # load trading capital
@@ -42,7 +42,6 @@ industry.setValueAtMonthEnd()
 tradecap.setValueAtMonthEnd()
 pe.setValueAtMonthEnd()
 stock_index.setValueAtMonthEnd()
-
 
 test = ftp.Ports_test(5, pe, stocks, stock_index, tradecap, industry.Data, True)
 #test2 = ftp.Ports_test(5, pe, stocks, stock_index, tradecap)

@@ -239,15 +239,18 @@ class Ports_test():
     def result(self):
         columns = ["Test_Time",
                    "direction",
+                   "port_excess_rts_corr",
                    "relative_win_ratio",
                    "relative_lose_ratio",
                    "monotonicity"]
         result = pd.DataFrame(index=[self.factorName], columns=columns)
-        result["Test_Time"] = str(dt.datetime.now())
+        result["Test_Time"].iloc[0] = str(dt.datetime.now())
+        result["port_excess_rts_corr"].iloc[0] = self.corrPortsExRts().ix[0, self.numOfPorts-1]
         result["direction"].iloc[0] = self.direction()
         result["relative_win_ratio"].iloc[0] = self.relativeWinRatio()
         result["relative_lose_ratio"].iloc[0] = self.relativeWinRatio()
         result["monotonicity"].iloc[0] = self.monotonicity()
+
         return result
 #  section 4 generate testing report
     def writeReport(self):
