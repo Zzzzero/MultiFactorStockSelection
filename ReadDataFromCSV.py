@@ -24,6 +24,7 @@ class ReadDataFromCSV (object):
         index = pd.to_datetime(index)
         # labeling the dataFrame
         self.Data = Data.drop(Data.columns[0], axis=1).set_index(index)
+# getters
     # getter of the DataFrame of the factor at all avaliable stocks
     def getDataFrame(self):
         return self.Data.copy()
@@ -49,16 +50,14 @@ class ReadDataFromCSV (object):
     # get the data at the end of each month
     def getValueAtMonthEnd(self):
         return self.Data.groupby(pd.TimeGrouper("M")).nth(0).copy()
+    # return the label of data
+    def getlabels (self):
+        return self.Data.columns.copy()
+# handling data
     # on handing missing data, using interpolate where missing point in between two point
     def handlingMissData(self,method="linear",limit = 28):
         self.Data.interpolate(method=method, limit=limit, axis=0, inplace=True)
     # selecting data after given date
-    def setStartTime(self,date):
-        self.Data = self.Data.loc[pd.to_datetime(date):]
-    # set a test end time
-    def setEndTime(self,date):
-        self.Data = self.Data.loc[:pd.to_datetime(date)]
-    # selecting data valid for last n period
     def selectLatest(self,period):
         self.Data = self.Data.tail(period)
     # drop label if the column contains NAN
@@ -67,9 +66,13 @@ class ReadDataFromCSV (object):
     # use only stocks with its stock codes in the array codes
     def usePartially (self, codes):
         self.Data = self.Data[codes]
-    # return the label of data
-    def getlabels (self):
-        return self.Data.columns.copy()
+# setters
+    def setStartTime(self,date):
+        self.Data = self.Data.loc[pd.to_datetime(date):]
+    # set a test end time
+    def setEndTime(self,date):
+        self.Data = self.Data.loc[:pd.to_datetime(date)]
+    # selecting data valid for last n period
     # set the data be at the end of each month
     def setValueAtMonthEnd(self):
         monthEndValue = pd.groupby(self.Data, by=[self.Data.index.year, self.Data.index.month]).size().cumsum()-1
@@ -127,12 +130,12 @@ class ReadFactorFromCSV (Read_Stock_Factor):
         mean = df.mean()
         std = df.std()
         return (df-mean)/std
-    #  de-extreme value of data in columns
-    def deExtremum (self,df):
-        ################
-        # unimplemented#
-        ################
-        return df
+    # important method for delayed factor effects
+    # delay the factor by some number of period
+    def delay(self, numberOfPeriod):
+        if numberOfPeriod < 0:
+            raise ValueError("illegal usage of feature data")
+        return self.Data.shift(numberOfPeriod).drop(self.Data.index[0:numberOfPeriod])
 # the object indexs
 class IndexFromCSV(ReadDataFromCSV):
     def __init__(self, indexName = "000300.SH",
@@ -149,11 +152,3 @@ class IndexFromCSV(ReadDataFromCSV):
         return (rts + 1).cumprod(0)
     def getIndexCode (self):
         return self.Data.name
-# calc return premium, df and series must be the dataframe and series
-# of return over the same period on stocks and index
-# input stock return df, index return series
-# out put retrun premium
-def rtOverIndex(df, series):
-    rp = pd.DataFrame(index=df.index)
-    rp = df.sub(series, axis=0)
-    return rp

@@ -14,6 +14,7 @@ class Ports_test():
     numOfPorts = None
     # initilization
     def __init__(self, numberOfPorts ,FactorObj, stocksObj, indexObj, tradeCapObj, industry = None, neutralized = False):
+        # geting copy of input variables
         self.factorName = FactorObj.getDataName()
         fdf = FactorObj.getDataFrame()
         rtdf = stocksObj.calcReturn()
@@ -22,7 +23,7 @@ class Ports_test():
         self.indexObj = indexObj
         # naming the portfolios
         portNames = self.namePorts(numberOfPorts)
-        # indexing factor with the date on which it generates portfolio returns
+        # indexing delayed factors
         fdf = fdf.shift(1)
         fdf.drop(fdf.index[0], inplace=True)
         # creating empty dataframe storing port returns at each return date
