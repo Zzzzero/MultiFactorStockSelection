@@ -5,8 +5,7 @@ import pandas as pd
 import statsmodels as stm
 import matplotlib.pyplot as plt
 #  excle editing tool
-from xlutils.copy import copy
-from xlrd import open_workbook
+import csv
 import datetime as dt
 # import project file
 import ReadDataFromCSV as rd
@@ -189,7 +188,7 @@ class Ports_test():
         # the poorest monotonicity if monotonicity can exam
         maxM = 0
         for i in range(1, self.numOfPorts+1):
-            maxM += (i-(self.numOfPorts+1)/2)**2
+            maxM += (i-(self.numOfPorts+1-i))**2
 
         if self.directOfInfluByAveRt() == self.directOfInfluByCorr():
             if self.directOfInfluByCorr() == 1:  # postive influence
@@ -237,33 +236,46 @@ class Ports_test():
             return -1
     # the evaluation result
     def result(self):
-        columns = ["Test_Time",
+        columns = ["test_time",
+                   "test_start",
+                   "test_end",
                    "direction",
                    "port_excess_rts_corr",
                    "relative_win_ratio",
                    "relative_lose_ratio",
-                   "monotonicity"]
-        result = pd.DataFrame(index=[self.factorName], columns=columns)
-        result["Test_Time"].iloc[0] = str(dt.datetime.now())
-        result["port_excess_rts_corr"].iloc[0] = self.corrPortsExRts().ix[0, self.numOfPorts-1]
-        result["direction"].iloc[0] = self.direction()
-        result["relative_win_ratio"].iloc[0] = self.relativeWinRatio()
-        result["relative_lose_ratio"].iloc[0] = self.relativeWinRatio()
-        result["monotonicity"].iloc[0] = self.monotonicity()
+                   "monotonicity",
+                   "IC"]
+        result = pd.DataFrame(columns=columns, index=[self.factorName])
+        # the factor info
+        result["test_time"] = str(dt.datetime.now())
+        result["test_start"] = str(self.rtDataframe.index[0])
+        result["test_end"] = str(self.rtDataframe.index[self.numOfPorts-1])
+        # the related test results
+        result["direction"] = self.direction()
+        result["port_excess_rts_corr"] = self.corrPortsExRts().ix[0, self.numOfPorts-1]
+        result["relative_win_ratio"] = self.relativeWinRatio()
+        result["relative_lose_ratio"] = self.relativeWinRatio()
+        result["monotonicity"] = self.monotonicity()
+        result["IC"] = self.factorExRtCorr()
 
         return result
-#  section 4 generate testing report
-    def writeReport(self):
-        filename = "C:/users/LZJF_02/Desktop/factor_test_report.csv"
-        rb = open_workbook(filename=filename)
-        wb = copy(rb)
-        sheet = wb.sheet(0)
 
-        sheet
-
-
-
-        return None
+    def report(self, filepath="C:/Users/LZJF_02/Desktop/test.csv"):
+        #  read the data stored in file
+        data = pd.read_csv(filepath_or_buffer=filepath)
+        index = data.ix[:, 0].astype(str)
+        data = data.drop(data.columns[0], axis=1).set_index(index)
+        #  the new output of this test
+        newdata = self.result()
+        # merge the data frame
+        if data.index.map(lambda x: x == newdata.index).any():
+            # the factor alread tested before, then replace it
+            data.loc[newdata.index[0]] = newdata.values[0]
+        else:
+            # the factor are not previously tested
+            data.loc[newdata.index[0]] = newdata.values[0]
+        # save the updated info in csv
+        data.to_csv(filepath)
 
 
 
