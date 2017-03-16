@@ -8,8 +8,7 @@ import Factor_test_frame_ports as ftp
 
 # the factor under test
 # load factor
-pe = rd.ReadFactorFromCSV("LZ_GPA_FIN_IND_NONOPPROFIT")
-
+pe = rd.ReadFactorFromCSV("LZ_GPA_VAL_PE")
 # load stocks
 stocks = rd.ReadStockFromCSV("LZ_GPA_QUOTE_TCLOSE")
 industry = rd.ReadFactorFromCSV("LZ_GPA_INDU_ZX")
@@ -33,12 +32,12 @@ stock_index.setEndTime(end)         #
 tradecap.setStartTime(start)        #
 tradecap.setEndTime(end)            #
 #####################################
-pe.dropNan()  # filter out poor data Factors
-peLabel = pe.getlabels()  # get current continent labels
+#pe.dropNan()  # filter out poor data Factors
+#peLabel = pe.getlabels()  # get current continent labels
 # use same label as in Factor
-stocks.usePartially(peLabel)
-industry.usePartially(peLabel)
-tradecap.usePartially(peLabel)
+#stocks.usePartially(peLabel)
+#industry.usePartially(peLabel)
+#tradecap.usePartially(peLabel)
 # set rt time window
 stocks.setValueAtMonthEnd()
 industry.setValueAtMonthEnd()

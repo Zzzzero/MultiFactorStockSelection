@@ -84,7 +84,7 @@ class ReadDataFromCSV (object):
 class Read_Stock_Factor (ReadDataFromCSV):
     def __init__(self, factorFileName,
                  path="D:/cStrategy/Factor/",
-                 dropDelisted = True):
+                 dropDelisted = False):
         super(Read_Stock_Factor, self).__init__(factorFileName, path)
         if dropDelisted:
             # get delisted stocks

@@ -70,7 +70,8 @@ class Ports_test():
             port = [[] for _ in range(0, self.numOfPorts)]
             industryIndexAtDate = self.getIndustryLists(industry, date)
             for item in industryIndexAtDate:
-                orderedStockCodes = self.sortFactor(fdf[item].loc[date])
+                deNa = fdf[item].loc[date].dropna()  # drop nan value label
+                orderedStockCodes = self.sortFactor(deNa)
                 lenth = len(orderedStockCodes)/self.numOfPorts
                 for i in range(0, self.numOfPorts):
                     port[i].extend(orderedStockCodes[i*lenth:(i+1)*lenth-1])
@@ -78,7 +79,8 @@ class Ports_test():
             port = []
             # not neutralize the industrial effect
             # start with the largest
-            orderedStockCodes = self.sortFactor(fdf.loc[date])
+            deNa = fdf.loc[date].dropna()
+            orderedStockCodes = self.sortFactor(deNa)
             lenth = len(orderedStockCodes) / self.numOfPorts
             for i in range(0, self.numOfPorts):
                 port.append(orderedStockCodes[i * lenth:(i + 1) * lenth - 1])
