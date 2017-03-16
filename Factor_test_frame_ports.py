@@ -13,24 +13,35 @@ import ReadDataFromCSV as rd
 class Ports_test():
     numOfPorts = None
     # initilization
-    def __init__(self, numberOfPorts ,FactorObj, stocksObj, indexObj, tradeCapObj, industry = None, neutralized = False):
-        # geting copy of input variables
+    def __init__(self, numberOfPorts,delayPeriod,FactorObj, stocksObj, indexObj, tradeCapObj, industry = None, neutralized = False):
+        # self instance variables
         self.factorName = FactorObj.getDataName()
-        fdf = FactorObj.getDataFrame()
-        rtdf = stocksObj.calcReturn()
-        tradeCapdf = tradeCapObj.getDataFrame()
+        self.rtDataframe = None
+        self.portAveFactor = None
+        self.cumRtDataFrame =None
         self.numOfPorts = int(numberOfPorts)
         self.indexObj = indexObj
-        # naming the portfolios
-        portNames = self.namePorts(numberOfPorts)
-        # indexing delayed factors
-        fdf = fdf.shift(1)
-        fdf.drop(fdf.index[0], inplace=True)
-        # creating empty dataframe storing port returns at each return date
+        self.delayPeriod = delayPeriod
+
+        # copys of data we need to manipulate
+        rtdf = stocksObj.calcReturn()
+        tradeCapdf = tradeCapObj.getDataFrame()
+        # delay the factor by defined period
+        fdf = self.delay(FactorObj.Data, self.delayPeriod)
+
+        # initilize the self instance variables
+        self.initilize(rtdf, fdf, tradeCapdf, neutralized, industry)
+
+
+# section 1, run the simulation
+    # initilize the self instance variables
+    def initilize(self, rtdf, fdf, tradeCapdf, neutralized, industry):
+
+        portNames = self.namePorts(self.numOfPorts)
         self.rtDataframe = pd.DataFrame(columns=portNames, index=fdf.index)
         self.portAveFactor = pd.DataFrame(columns=portNames, index=fdf.index)
         # filling the data frame of portfolio returns
-        for date in rtdf.index:
+        for date in fdf.index:
             ports = self.intoPorts(fdf, date, neutralized, industry)
             i = 0
             for item in ports:
@@ -41,9 +52,11 @@ class Ports_test():
                 self.rtDataframe.loc[date][portNames[i]] = self.calcRtForPort(weightAtDate, rtAtDate).ix[0, 0]
                 i += 1
         # filling the dataframe of portfolio cumulative returns
-        self.cumRtDataFrame = (self.rtDataframe+1).cumprod(0)
-        # evaluation the factor
-# section 1, run the simulation
+        self.cumRtDataFrame = (self.rtDataframe + 1).cumprod(0)
+    # setting delay of factor to make alpha(n), to test the (Rtm , Fac(m-n)) pair
+    def delay(self,df,numOfPeriod=1):
+        return df.shift(numOfPeriod).drop(df.index[:numOfPeriod])
+    # calculate the trade capital weighted return of each port
     def calcRtForPort (self, weightAtDate, rtAtDate):
         return (weightAtDate*rtAtDate).sum()
     # calculate the weight of stocks using trade capital as numerator on given date
@@ -185,7 +198,8 @@ class Ports_test():
     # the monotonicity of the factor value and port returns
     def aveRtRanks (self):
         return self.rtDataframe.mean().rank()
-    # decide if the how good is the monotonicity, good results attained as the value close to zero
+    # decide if the how good is the monotonicity,
+    # good results attained as the value close to zero
     def monotonicity (self):
         monotonicity = -1  # initial value neg to avoid error usage
         # the poorest monotonicity if monotonicity can exam

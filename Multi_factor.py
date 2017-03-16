@@ -45,7 +45,8 @@ tradecap.setValueAtMonthEnd()
 pe.setValueAtMonthEnd()
 stock_index.setValueAtMonthEnd()
 
-test = ftp.Ports_test(5, pe, stocks, stock_index, tradecap, industry.Data, True)
-test.report()
+test1 = ftp.Ports_test(5, 1, pe, stocks, stock_index, tradecap, industry.Data, True)
+test2 = ftp.Ports_test(5, 2, pe, stocks, stock_index, tradecap, industry.Data, True)
+
 #test2 = ftp.Ports_test(5, pe, stocks, stock_index, tradecap)
 
