@@ -110,10 +110,10 @@ class ReadStockFromCSV (Read_Stock_Factor):
 
     #  calculating stock return over given period of days
     #  and returns the period begain
-    def calcReturn (self):
+    def calcReturn (self, period=1):
         df = self.Data.copy()
-        df = df / df.shift(1) - 1  # calc and return
-        return df.drop(df.index[0])# drop the fist line as it is Nan
+        df = df / df.shift(period) - 1  # calc and return
+        return df.drop(df.index[range(0, period)])# drop the fist line as it is Nan
     def getEMA(self, stockCode):
         EMA = tl.MA(self.Data[stockCode].values, matype=1)
         return pd.DataFrame(EMA).set_index(self.Data.index)
