@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 import talib as tl
-
 # this is the parent object of all csv penaled data
 # has a name and DataFrame
 # exclude DELISTED STOCKS ONLY
@@ -104,9 +103,15 @@ class Read_Stock_Factor (ReadDataFromCSV):
 class ReadStockFromCSV (Read_Stock_Factor):
     #  stocks has a sector index
     def __init__(self, factorFileName,
-                 path="D:/cStrategy/Factor/"):
+                 path="D:/cStrategy/Factor/", Adjusted="Forward"):
         super(ReadStockFromCSV, self).__init__(factorFileName, path)
         # default path are set to be ZHONGXIN sector
+
+        ################### setting adjusted values for stock price
+        # forward
+        # back ward
+
+
 
     #  calculating stock return over given period of days
     #  and returns the period begain

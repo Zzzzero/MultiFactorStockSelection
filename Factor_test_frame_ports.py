@@ -32,7 +32,6 @@ class Ports_test():
         # initilize the self instance variables
         self.initilize(rtdf, fdf, tradeCapdf, neutralized, industry)
 
-
 # section 1, run the simulation
     # initilize the self instance variables
     def initilize(self, rtdf, fdf, tradeCapdf, neutralized, industry):
@@ -131,7 +130,6 @@ class Ports_test():
     def port1ToNScatterExRts(self):
         df = self.excessRts()
         return df.ix[:, [0, self.numOfPorts-1]].plot(kind="scatter", x=df.columns[0], y=df.columns[self.numOfPorts-1])
-
 # section 3, the evaluation of chosen factor
     # the correlation
     def corrPortsExRts(self, method="pearson"):
@@ -276,7 +274,7 @@ class Ports_test():
         result["IC"] = self.factorExRtCorr()
 
         return result
-
+#  writing a test report to a given path
     def report(self, filepath="C:/Users/LZJF_02/Desktop/test.csv"):
         #  read the data stored in file
         data = pd.read_csv(filepath_or_buffer=filepath)
