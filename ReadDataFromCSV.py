@@ -105,25 +105,35 @@ class ReadStockFromCSV (Read_Stock_Factor):
     def __init__(self, factorFileName,
                  path="D:/cStrategy/Factor/", Adjusted="Forward"):
         super(ReadStockFromCSV, self).__init__(factorFileName, path)
-        # default path are set to be ZHONGXIN sector
+        ################### setting adjusted values for stock price ###############
+        # 1. read the cumulative ajustment factor (WIND)
+        self.CUM_FACTOR = ReadFactorFromCSV("LZ_GPA_CMFTR_CUM_FACTOR").Data
 
-        ################### setting adjusted values for stock price
-        # forward
-        # back ward
+    # 2. the forward adjusted price
+    def getForwardAdjPrice(self):
+        backPrice = self.getBackwardAdjPrice()
+        todayFac = self.CUM_FACTOR.loc[self.CUM_FACTOR.index[-1]]
+        return backPrice / todayFac
+    # 3. the backward adjusted price
+    def getBackwardAdjPrice(self):
+        return self.Data * self.CUM_FACTOR
     #  calculating stock return over given period of days
     #  and returns the period begain
-    def calcReturn (self, period=1):
-        df = self.Data.copy()
+    def calcReturn (self, method="F", period=1):
+        if method == "F":
+            df = self.getForwardAdjPrice()
+        else:
+            df = self.getBackwardAdjPrice()
         df = df / df.shift(period) - 1  # calc and return
         return df.drop(df.index[range(0, period)])# drop the fist line as it is Nan
-    def getEMA(self, stockCode):
-        EMA = tl.MA(self.Data[stockCode].values, matype=1)
-        return pd.DataFrame(EMA).set_index(self.Data.index)
-    def getMACD(self, stockCode, fastpriod, slowperiod, sigperiod):
-        macd, macdsignal, macdhist = tl.MACDEXT(self.Data[stockCode], fastperiod=fastpriod, fastmatype=1,
-                                                slowperiod=slowperiod, slowmatype=1,
-                                                signalperiod=sigperiod, signalmatype=1)
-        return macd, macdsignal, macdhist
+    # override setters
+    def setStartTime(self,date):
+        self.Data = self.Data.loc[pd.to_datetime(date):]
+        self.CUM_FACTOR = self.CUM_FACTOR.loc[pd.to_datetime(date):]
+    # set a test end time
+    def setEndTime(self,date):
+        self.Data = self.Data.loc[:pd.to_datetime(date)]
+        self.CUM_FACTOR = self.CUM_FACTOR.loc[:pd.to_datetime(date)]
 # the object Factors
 class ReadFactorFromCSV (Read_Stock_Factor):
     # returns standarlized value of each columns in given dataFrame df

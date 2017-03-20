@@ -26,7 +26,7 @@ class Ports_test():
         self.delayPeriod = delayPeriod
 
         # copys of data we need to manipulate
-        rtdf = stocksObj.calcReturn()
+        rtdf = stocksObj.calcReturn(method="F")
         tradeCapdf = tradeCapObj.getDataFrame()
         # delay the factor by defined period
         fdf = self.delay(FactorObj.Data, self.delayPeriod)
