@@ -110,9 +110,6 @@ class ReadStockFromCSV (Read_Stock_Factor):
         ################### setting adjusted values for stock price
         # forward
         # back ward
-
-
-
     #  calculating stock return over given period of days
     #  and returns the period begain
     def calcReturn (self, period=1):

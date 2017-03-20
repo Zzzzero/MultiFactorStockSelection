@@ -2,6 +2,7 @@
 # import basic packages
 import numpy as np
 import pandas as pd
+import dill
 # import project file
 import ReadDataFromCSV as rd
 import Factor_test_frame_ports as ftp
@@ -45,8 +46,9 @@ tradecap.setValueAtMonthEnd()
 pe.setValueAtMonthEnd()
 stock_index.setValueAtMonthEnd()
 
+
 test1 = ftp.Ports_test(5, 1, pe, stocks, stock_index, tradecap, industry.Data, True)
-test2 = ftp.Ports_test(5, 2, pe, stocks, stock_index, tradecap, industry.Data, True)
+
 
 #test2 = ftp.Ports_test(5, pe, stocks, stock_index, tradecap)
 

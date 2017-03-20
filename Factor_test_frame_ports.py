@@ -5,7 +5,8 @@ import pandas as pd
 import statsmodels as stm
 import matplotlib.pyplot as plt
 #  excle editing tool
-import csv
+from joblib import delayed, Parallel
+import dill
 import datetime as dt
 # import project file
 import ReadDataFromCSV as rd
@@ -14,6 +15,7 @@ class Ports_test():
     numOfPorts = None
     # initilization
     def __init__(self, numberOfPorts,delayPeriod,FactorObj, stocksObj, indexObj, tradeCapObj, industry = None, neutralized = False):
+
         # self instance variables
         self.factorName = FactorObj.getDataName()
         self.rtDataframe = None
@@ -31,7 +33,8 @@ class Ports_test():
 
         # initilize the self instance variables
         self.initilize(rtdf, fdf, tradeCapdf, neutralized, industry)
-
+    if __name__ == "__main__":
+        __init__()
 # section 1, run the simulation
     # initilize the self instance variables
     def initilize(self, rtdf, fdf, tradeCapdf, neutralized, industry):
@@ -40,20 +43,25 @@ class Ports_test():
         self.rtDataframe = pd.DataFrame(columns=portNames, index=fdf.index)
         self.portAveFactor = pd.DataFrame(columns=portNames, index=fdf.index)
         # filling the data frame of portfolio returns
+        #Parallel(n_jobs=-1)(
+         #   delayed(self.intoPortsPerDay)(date, fdf, rtdf, tradeCapdf, portNames,
+          #                                neutralized, industry) for date in fdf.index)
         for date in fdf.index:
-            ports = self.intoPorts(fdf, date, neutralized, industry)
-            i = 0
-            for item in ports:
-                rtAtDate = self.getReturnAtDate(item, rtdf, date)
-                tradeCapAtDate = self.getTradeCapAtDate(item, tradeCapdf, date)
-                weightAtDate = self.getWeightAtDate(tradeCapAtDate)
-                self.portAveFactor.loc[date][portNames[i]] = fdf[item].loc[date].mean()
-                self.rtDataframe.loc[date][portNames[i]] = self.calcRtForPort(weightAtDate, rtAtDate).ix[0, 0]
-                i += 1
+            self.intoPortsPerDay(date, fdf, rtdf, tradeCapdf, portNames, neutralized, industry)
         # filling the dataframe of portfolio cumulative returns
         self.cumRtDataFrame = (self.rtDataframe + 1).cumprod(0)
+    def intoPortsPerDay(self, date, fdf, rtdf, tradeCapdf, portNames, neutralized, industry):
+        ports = self.intoPorts(fdf, date, neutralized, industry)
+        i = 0
+        for item in ports:
+            rtAtDate = self.getReturnAtDate(item, rtdf, date)
+            tradeCapAtDate = self.getTradeCapAtDate(item, tradeCapdf, date)
+            weightAtDate = self.getWeightAtDate(tradeCapAtDate)
+            self.portAveFactor.loc[date][portNames[i]] = fdf[item].loc[date].mean()
+            self.rtDataframe.loc[date][portNames[i]] = self.calcRtForPort(weightAtDate, rtAtDate).ix[0, 0]
+            i += 1
     # setting delay of factor to make alpha(n), to test the (Rtm , Fac(m-n)) pair
-    def delay(self,df,numOfPeriod=1):
+    def delay(self,df, numOfPeriod=1):
         return df.shift(numOfPeriod).drop(df.index[:numOfPeriod])
     # calculate the trade capital weighted return of each port
     def calcRtForPort (self, weightAtDate, rtAtDate):
