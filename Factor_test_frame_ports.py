@@ -79,7 +79,7 @@ class Ports_test():
     def getIndustryLists(self, industry, date):
         row = industry.loc[date]
         indust = []
-        for i in range(1, 24):
+        for i in range(1, 30):
             indust.append(row[row == i].index.tolist())
         indust.append(row[np.isnan(row)].index.tolist())
         return indust

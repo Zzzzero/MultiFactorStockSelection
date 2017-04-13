@@ -45,9 +45,7 @@ industry.setValueAtMonthEnd()
 tradecap.setValueAtMonthEnd()
 pe.setValueAtMonthEnd()
 stock_index.setValueAtMonthEnd()
-
+rts = stocks.calcReturn()["000005.SZ"]
 test1 = ftp.Ports_test(5, 1, pe, stocks, stock_index, tradecap, industry.Data, True)
 
-
-#test2 = ftp.Ports_test(5, pe, stocks, stock_index, tradecap)
 
