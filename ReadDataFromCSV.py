@@ -10,6 +10,7 @@ import talib as tl
 # exclude DELISTED STOCKS ONLY
 class ReadDataFromCSV (object):
     Data = pd.DataFrame()  #DataFrame with str labels
+    strIndex = None
     Name = None
     # class constructor file stored at  "D:/cStrategy/Factor/" by default
     def __init__(self, factorFileName, path="D:/cStrategy/Factor/"):
@@ -20,6 +21,7 @@ class ReadDataFromCSV (object):
         Data = pd.read_csv(filepath_or_buffer=path)
         # indexing the data
         index = Data.ix[:, 0].astype(str)
+        self.strIndex = index
         index = pd.to_datetime(index)
         # labeling the dataFrame
         self.Data = Data.drop(Data.columns[0], axis=1).set_index(index)

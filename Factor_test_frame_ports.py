@@ -20,7 +20,7 @@ class Ports_test():
         self.factorName = FactorObj.getDataName()
         self.rtDataframe = None
         self.portAveFactor = None
-        self.cumRtDataFrame =None
+        self.cumRtDataFrame = None
         self.numOfPorts = int(numberOfPorts)
         self.indexObj = indexObj
         self.delayPeriod = delayPeriod

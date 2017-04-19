@@ -24,7 +24,6 @@ def readData():
     close.setEndTime(end)
 
     return volume, vwap, open, close
-
 def crossSectionalPCA(date, intradayDif, vwapData, volumeData):
     col = ["1", "2", "3"]
     df = pd.DataFrame(columns=col)
@@ -45,7 +44,6 @@ def crossSectionalPCA(date, intradayDif, vwapData, volumeData):
     pcindf[pcdt.columns] = pcdt
     # pcdt is a dataframe with index = date, columns=code
     return pcindf
-
 def main():
     volume, vwap, open, close = readData()
     # construct variables
@@ -56,18 +54,11 @@ def main():
     # df contains the pc of data in df
     df = pd.DataFrame(columns=vwapData.columns, index=vwapData.index)
 
-    pcindflist = Parallel(n_jobs=-1)(delayed(crossSectionalPCA)(date, intradayDif, vwapData, volumeData) for date in vwapData.index)
+    pcindflist = Parallel(n_jobs=-1)(delayed(crossSectionalPCA)(date, intradayDif, vwapData, volumeData)
+                                     for date in vwapData.index)
 
     for i, date in enumerate(vwapData.index):
         df.loc[date][pcindflist[i]] = pcindflist[i].loc[date]
-
-
     return df
-
 if __name__ == "__main__":
     main()
-
-
-
-
-
