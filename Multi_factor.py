@@ -9,7 +9,7 @@ import Factor_test_frame_ports as ftp
 
 # the factor under test
 # load factor
-pe = rd.ReadFactorFromCSV("WeightedProfitStrangth_1D")
+pe = rd.ReadFactorFromCSV("WBeta_1D")
 # load stocks
 stocks = rd.ReadStockFromCSV("LZ_GPA_QUOTE_TCLOSE")
 industry = rd.ReadFactorFromCSV("LZ_GPA_INDU_ZX")
