@@ -26,7 +26,5 @@ for i, item in enumerate(Factor.index):
     datelist = str(item.date()).split("-")
     datestr = datelist[0] + datelist[1] + datelist[2]
     dateList.append(datestr)
-
 Factor.index = dateList
-
 Factor.to_csv("intradayAL42_1D.csv")

@@ -41,4 +41,4 @@ for i, item in enumerate(Factor.index):
     dateList.append(datestr)
 Factor.index = dateList
 
-Factor.to_csv("OPENCORRVOL_1D.csv")
+Factor.to_csv("OPENCORRRankVOL_1D.csv")
