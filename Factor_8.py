@@ -14,7 +14,7 @@ Factor = pd.DataFrame(index=close.index, columns=close.columns)
 
 opdf = pd.DataFrame(index=close.index, columns=close.columns)
 rtdf = pd.DataFrame(index=close.index, columns=close.columns)
-d = 5
+d = 10
 d2 = 10
 for i, item in enumerate(opdf.index):
     if i < d:
@@ -33,4 +33,4 @@ for i, item in enumerate(Factor.index):
         Factor.loc[item] = -1 * (p1 - p2).rank()
 
 Factor.index = index
-Factor.to_csv("5dayPrtDif_1D.csv")
+Factor.to_csv("PrtDif_1D.csv")
